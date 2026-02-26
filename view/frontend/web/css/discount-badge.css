@@ -21,6 +21,13 @@
     flex-wrap: nowrap;
 }
 
+/* Block position (new line after/before old price) */
+.rollpix-discount-badge--block {
+    display: block;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
 /* Below price position */
 .rollpix-discount-badge--below {
     display: block;

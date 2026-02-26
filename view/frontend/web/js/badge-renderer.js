@@ -153,7 +153,7 @@ define(['jquery'], function ($) {
             var isPdp = $('body').hasClass('catalog-product-view');
             var styles = isPdp ? config.pdpStyles : config.listingStyles;
             var badgeStyle = config.badgeStyle;
-            var position = styles.position;
+            var position = this._normalizePosition(styles.position);
 
             // Build CSS classes
             var classes = [BADGE_CLASS];
@@ -168,8 +168,10 @@ define(['jquery'], function ($) {
                 classes.push(BADGE_CLASS + '--' + posKey.replace(/_/g, '-'));
             } else if (position === 'below_price') {
                 classes.push(BADGE_CLASS + '--below');
-            } else if (position === 'left_of_old_price' || position === 'right_of_old_price') {
+            } else if (position.indexOf('_inline') !== -1) {
                 classes.push(BADGE_CLASS + '--inline');
+            } else if (position.indexOf('_block') !== -1) {
+                classes.push(BADGE_CLASS + '--block');
             }
 
             // Style class
@@ -247,42 +249,52 @@ define(['jquery'], function ($) {
         _placeBadge: function ($priceBox, $badge) {
             var isPdp = $('body').hasClass('catalog-product-view');
             var styles = isPdp ? config.pdpStyles : config.listingStyles;
-            var position = styles.position;
+            var position = this._normalizePosition(styles.position);
 
-            switch (position) {
-                case 'right_of_old_price':
-                    this._placeInline($priceBox, $badge, 'right');
-                    break;
-
-                case 'left_of_old_price':
-                    this._placeInline($priceBox, $badge, 'left');
-                    break;
-
-                case 'below_price':
-                    $priceBox.after($badge);
-                    break;
-
-                default:
-                    // over_image positions
-                    if (position.indexOf('over_image') === 0) {
-                        this._placeOverImage($priceBox, $badge);
-                    }
-                    break;
+            if (position === 'below_price') {
+                $priceBox.after($badge);
+            } else if (position.indexOf('over_image') === 0) {
+                this._placeOverImage($priceBox, $badge);
+            } else if (position.indexOf('after_old_price') === 0) {
+                this._placeNearOldPrice($priceBox, $badge, 'after', position.indexOf('_inline') !== -1);
+            } else if (position.indexOf('before_old_price') === 0) {
+                this._placeNearOldPrice($priceBox, $badge, 'before', position.indexOf('_inline') !== -1);
             }
         },
 
         /**
-         * Place badge inline with the old price using a flex wrapper
-         * to guarantee both elements stay on the same line.
+         * Normalize legacy position values to current format.
+         * @param {string} position
+         * @returns {string}
+         */
+        _normalizePosition: function (position) {
+            var legacy = {
+                'after_old_price': 'after_old_price_block',
+                'before_old_price': 'before_old_price_block',
+                'right_of_old_price': 'after_old_price_inline',
+                'left_of_old_price': 'before_old_price_inline'
+            };
+
+            return legacy[position] || position;
+        },
+
+        /**
+         * Place badge near the old price.
          * @param {jQuery} $priceBox
          * @param {jQuery} $badge
-         * @param {string} side - 'left' or 'right'
+         * @param {string} side - 'before' or 'after'
+         * @param {boolean} inline - true for same line (flex wrapper), false for new line
          */
-        _placeInline: function ($priceBox, $badge, side) {
+        _placeNearOldPrice: function ($priceBox, $badge, side, inline) {
             var $oldPrice = $priceBox.find('.old-price').first();
 
-            if ($oldPrice.length) {
-                // Reuse existing wrapper or create one
+            if (!$oldPrice.length) {
+                $priceBox.append($badge);
+                return;
+            }
+
+            if (inline) {
+                // Flex wrapper: keeps badge + old price on the same line
                 var $wrapper = $oldPrice.parent('.rollpix-discount-badge-wrapper');
 
                 if (!$wrapper.length) {
@@ -290,14 +302,18 @@ define(['jquery'], function ($) {
                     $wrapper = $oldPrice.parent();
                 }
 
-                if (side === 'right') {
+                if (side === 'after') {
                     $wrapper.append($badge);
                 } else {
                     $wrapper.prepend($badge);
                 }
             } else {
-                // Fallback: append to priceBox
-                $priceBox.append($badge);
+                // Block: badge on its own line
+                if (side === 'after') {
+                    $oldPrice.after($badge);
+                } else {
+                    $oldPrice.before($badge);
+                }
             }
         },
 
