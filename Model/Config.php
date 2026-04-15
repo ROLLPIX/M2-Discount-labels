@@ -11,9 +11,15 @@ class Config
 {
     private const XML_PATH_PREFIX = 'rollpix_discountbadge/';
 
+    /**
+     * @var ScopeConfigInterface
+     */
+    private $scopeConfig;
+
     public function __construct(
-        private readonly ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig
     ) {
+        $this->scopeConfig = $scopeConfig;
     }
 
     public function isEnabled(): bool

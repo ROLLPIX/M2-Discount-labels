@@ -9,9 +9,15 @@ use Rollpix\DiscountBadge\Model\Config;
 
 class DiscountBadge implements ArgumentInterface
 {
+    /**
+     * @var Config
+     */
+    private $config;
+
     public function __construct(
-        private readonly Config $config
+        Config $config
     ) {
+        $this->config = $config;
     }
 
     public function isEnabled(): bool

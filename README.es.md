@@ -11,7 +11,9 @@ Badge dinámico de porcentaje de descuento para precios de productos en Magento 
 | Requisito | Versión |
 |---|---|
 | Magento | 2.4.7 ~ 2.4.8 |
-| PHP | 8.1 ~ 8.3 |
+| PHP | 7.4 ~ 8.4 |
+
+El codigo del modulo es compatible con PHP 7.4 hasta 8.4. Las combinaciones Magento/PHP realmente desplegables siguen dependiendo de la matriz oficial de plataforma de Adobe Commerce / Magento Open Source.
 
 ## Instalación
 
@@ -19,7 +21,7 @@ Badge dinámico de porcentaje de descuento para precios de productos en Magento 
 
 ```bash
 composer config repositories.rollpix-discount-badge vcs https://github.com/ROLLPIX/M2-DiscountBadge.git
-composer require rollpix/module-discount-badge:1.0.0
+composer require rollpix/module-discount-badge:1.3.0
 bin/magento module:enable Rollpix_DiscountBadge
 bin/magento setup:upgrade
 bin/magento cache:flush
